@@ -1,23 +1,13 @@
 # Wigle
-An attempt to build a search engine from scratch....
+Wigle is a fast, alternative keyword-based search engine for Wikipedia that can be used directly from your terminal. 
 
-# General approach
-Crawl pages, use words to create reverse index, rank pages based on keywords & 
-overall page reputation, yields best results when asked.
+## [wi]kipedia + goo[gle]!
+Wigle can be run from the terminal and, once loaded, returns ultra fast search results.
+Wigle supports single and multi word search queries.
 
-# Questions
-
-> 
-Responsiveness
-Reputation
-Multiple words
-Speed
-Seed links
->
-
-if multi-word isn't there, try subsets (up to 8 words)
 
 !Add second level dictionary to compress master
 !Figure out fast batching
 !Fix bug for exact matches on multi-words e.g. "South America"
-!Half memory size by recording url extension w/o base
+!Fix HIGH reputation bug
+!Precompute many perfect matches
