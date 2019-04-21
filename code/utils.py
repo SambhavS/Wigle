@@ -1,7 +1,7 @@
 ### Utils
 import pickledb 
 import string
-
+    
 def clean(word):
     return ''.join(i for i in word if i in string.ascii_letters+" 1234567890")
 
@@ -10,6 +10,12 @@ def is_clean(word):
 
 def get_base(full_url):
     return full_url.split("/")[-1]
+
+def fix_url(url):
+    url_base, url_end = url.split("/")[:-1], get_base(url)
+    url_end = ''.join([i.capitalize()+"_" for i in url_end.split("_")])[:-1]
+    url_base = ''.join([term+"/" for term in url_base])
+    return url_base + url_end
 
 def write_dict(db, fname, dictionary):
     """ Update database """

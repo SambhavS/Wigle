@@ -3,10 +3,10 @@ import scrapy
 import string
 import html2text
 import pickledb
+import math
 from spider import *
 from utils import *
 from scrapy.crawler import CrawlerProcess
-
 
 def clear_db(check1, check2, check3):
     """
@@ -48,11 +48,12 @@ def crawl(num_urls=500):
 
     # Update reputation
     for link in reputation:
+        rep = min(600, reputation[link]) if reputation[link] < 2000 else reputation[link]
         if not db.dexists("reputation", link):
-            db.dadd("reputation", (link, reputation[link]))
+            db.dadd("reputation", (link, rep))
         else:
             curr_rep = db.dget("reputation", link)
-            new_rep = curr_rep + reputation[link]
+            new_rep = curr_rep + rep
             db.dadd("reputation", (link, new_rep))
 
     # Update list of links
@@ -70,20 +71,37 @@ def search():
         i = input("🔍 ").lower()
         if i in ("quit", "exit"):
             break
-        if(len(i.split()) > 7):
-            print("query must be seven or fewer words")
-            continue
         if db.dexists("master", i):
+            # Single word queries
             results = db.dget("master", i)
             final = [(link, score, db.dget("reputation", link))
                       for link, score in results.items() if db.dexists("reputation", link)]
-            final = sorted(final, key = lambda x: -1 * (x[1]+x[2]))[:40]
+            final = sorted(final, key = lambda x: -1 * (5*x[1] + x[2] + 4*(x[1]*x[2])/(x[1]+x[2])))[:10]
             for link, relevance, reputation in final:
-                print("https://en.wikipedia.org/wiki/{}".format(link), int(relevance), int(reputation))
+                print(fix_url("https://en.wikipedia.org/wiki/{}".format(link)))#, int(relevance), int(reputation))
             print()
         else:
-            print("word not found")
+            # Multi word queries
+            d = dict()
+            for ind, k in enumerate(i.split()):
+                if db.dexists("master", k):
+                    results = db.dget("master", k)
+                    for link, score in results.items():
+                        if link not in d:
+                            d[link] = [0] *  len(i.split())
+                        d[link][ind] = score
+            def sort_results(item):
+                link, scores  = item
+                rep = db.dget("reputation", link) 
+                rel = 1
+                for score in scores:
+                    rel *= max(score, 0.33)
+                final = -1 * (5*rel + rep + 4*(rel*rep)/(rel+rep))    
+                return final
+            top_ten = sorted(d.items(), key = sort_results)[:10]
 
+            for link, _arr in top_ten:
+                print(fix_url("https://en.wikipedia.org/wiki/{}".format(link)))
 
 
 search()
