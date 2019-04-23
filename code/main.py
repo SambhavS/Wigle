@@ -64,45 +64,91 @@ def crawl(num_urls=500):
     dict2file("reputation", reputation)
     list2file("links", sorted(list(link_set)))
     
+def single_word_answers(db, article_names, i):
+    """ 
+    Returns top eight results. Ordered by: exact match, match & rep, match, rep
+    """
+    results = db.dget("master", i)
+    final = [(link, score, db.dget("reputation", link)) for link, score in results.items()]
+    scored_links = dict()
+    for link, rel, rep in final:
+        scored_links[link] = -1 * (5*rel + rep + 2*(rel*rep)/(rel+rep))
+    crawled = sorted([(link, score) for link, score in scored_links.items()], key=lambda x:x[1])
+    matches = []
+    matched_links = set()
+    if article_names.dexists("all_names", i):
+        articles = article_names.dget("all_names", i)
+        for article in articles:
+            if article in scored_links:
+                matches.append((article, scored_links[article]))
+            else:
+                matches.append((article, 0))
+            matched_links.add(article)
+    matches = sorted(matches, key=lambda x: x[1])
+    for link, score in crawled:
+        if link not in matched_links:
+            matches.append((link, -1))
+
+    # Exact match
+    if article_names.dexists("all_names", i):
+        matches = [i] + [m for m,s in matches if m != i]
+    else:
+        matches = [m for m,s in matches]
+    return matches[:8]
     
+def multi_word_answers(db, article_names, i):
+    """
+    Returns top eight results. Based mostly on reputation/relevance.
+    """
+    def sort_results(item):
+        """ Function for calculating reputation/relevance score"""
+        link, scores  = item
+        rep = db.dget("reputation", link) 
+        rel = 1
+        for score in scores:
+            rel *= max(score, 0.25)
+        final = -1 * (5*rel + rep + 2*(rel*rep)/(rel+rep))    
+        return final
+
+    def k_factor(link, i):
+        """ Gives score multiple based on number of matching words in string """
+        return 1 + len(set(link.split("_")).intersection(set(i.split())))
+
+    # Multi word queries
+    d = dict()
+    for ind, k in enumerate(i.split()):
+        if db.dexists("master", k):
+            results = db.dget("master", k)
+            for link, score in results.items():
+                if link not in d:
+                    d[link] = [0] *  len(i.split())
+                d[link][ind] = score
+    crawled = sorted([(link, sort_results((link,score))) for link, score in sorted(d.items())], key=lambda x:x[1])
+    crawled = crawled[:30]    
+    matches = [(link, score * k_factor(link, i)) for link,score in crawled]
+    matches = sorted(matches, key=lambda x: x[1])
+    mod_i = i.replace(" ", "_").strip()
+    if article_names.dexists("all_names", mod_i):
+        matches = [i.replace(" ", "_")] + [m for m,s in matches if m != mod_i]
+    else:
+        matches = [m for m,s in matches]
+    return matches[:8]
+
 def search():
     db = pickledb.load("n2.db", False)
+    article_names = pickledb.load("all_names.db", False)
+    base = "https://en.wikipedia.org/wiki/"
     while True:
         i = input("🔍 ").lower()
         if i in ("quit", "exit"):
             break
         if db.dexists("master", i):
-            # Single word queries
-            results = db.dget("master", i)
-            final = [(link, score, db.dget("reputation", link))
-                      for link, score in results.items() if db.dexists("reputation", link)]
-            final = sorted(final, key = lambda x: -1 * (5*x[1] + x[2] + 4*(x[1]*x[2])/(x[1]+x[2])))[:10]
-            for link, relevance, reputation in final:
-                print(fix_url("https://en.wikipedia.org/wiki/{}".format(link)))#, int(relevance), int(reputation))
-            print()
+            answers = [fix_url(base+a) for a in single_word_answers(db, article_names, i)]
         else:
-            # Multi word queries
-            d = dict()
-            for ind, k in enumerate(i.split()):
-                if db.dexists("master", k):
-                    results = db.dget("master", k)
-                    for link, score in results.items():
-                        if link not in d:
-                            d[link] = [0] *  len(i.split())
-                        d[link][ind] = score
-            def sort_results(item):
-                link, scores  = item
-                rep = db.dget("reputation", link) 
-                rel = 1
-                for score in scores:
-                    rel *= max(score, 0.33)
-                final = -1 * (5*rel + rep + 4*(rel*rep)/(rel+rep))    
-                return final
-            top_ten = sorted(d.items(), key = sort_results)[:10]
-
-            for link, _arr in top_ten:
-                print(fix_url("https://en.wikipedia.org/wiki/{}".format(link)))
-
-
+            answers = [fix_url(base+a) for a in multi_word_answers(db, article_names, i)]
+        for each in answers:
+            print(each)
+        if not answers:
+            print("no results found")
+        print()
 search()
-

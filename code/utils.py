@@ -28,6 +28,7 @@ def write_dict(db, fname, dictionary):
             orig_int = db.dget(fname, key)
             new_int = value + orig_int
             db.dadd(fname, (key, new_int))
+    
 
 def write_list(db, fname, lst):
     db.lremlist(fname)
