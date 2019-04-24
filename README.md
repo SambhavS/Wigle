@@ -18,7 +18,7 @@ Wigle attempts to figure out the relevance (to a search) and (overall) reputatio
 Here are some example searches and results using Wigle.
 
 
-<img src="pics/pic1.png" width="900">
-<img src="pics/pic2.png" width="900">
-<img src="pics/pic3.png" width="900">
-<img src="pics/pic4.png" width="900">
+<img src="pics/pic1.png" width="400">
+<img src="pics/pic2.png" width="400">
+<img src="pics/pic3.png" width="400">
+<img src="pics/pic4.png" width="400">
