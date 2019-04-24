@@ -1,8 +1,9 @@
 # Wigle
-Wigle is a fast, keyword-based search engine for finding Wikipedia articles that can be used directly from your terminal. 
+Wigle is a fast, keyword-based search engine for finding Wikipedia articles, that can be used directly from your terminal. 
 
 ## [wi]kipedia + goo[gle]!
-Wigle can be run from the terminal and, once loaded, returns ultra fast search results. Wigle supports single and multi word search queries.
+Wigle can be run from the terminal and, once loaded, returns ultra fast search results.
+Wigle supports single and multi word search queries.
 
 ## Algo Overview
 Wigle has different logic for single and multi word queries. Single-word logic queries look through a large number (~1m) of titles for an exact or partial title match, and prioritizes any that have been crawled with high relevance/reputation scores. Crawling takes a significant amount of time, so this approach allows us to blend
@@ -14,7 +15,8 @@ Wigle attempts to figure out the relevance (to a search) and (overall) reputatio
 
 
 ## Examples
-Check out some example searches.
+Here are some example searches and results using Wigle.
+
 
 
 <img src="pics/pic3.png" width="450px"><img src="pics/pic4.png" width="450px">
