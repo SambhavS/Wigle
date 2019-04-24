@@ -4,6 +4,7 @@ import string
 import html2text
 import pickledb
 import math
+import webbrowser
 from spider import *
 from utils import *
 from scrapy.crawler import CrawlerProcess
@@ -129,7 +130,7 @@ def multi_word_answers(db, article_names, i):
     matches = sorted(matches, key=lambda x: x[1])
     mod_i = i.replace(" ", "_").strip()
     if article_names.dexists("all_names", mod_i):
-        matches = [i.replace(" ", "_")] + [m for m,s in matches if m != mod_i]
+        matches = [mod_i] + [m for m,s in matches if m != mod_i]
     else:
         matches = [m for m,s in matches]
     return matches[:8]
@@ -138,17 +139,24 @@ def search():
     db = pickledb.load("n2.db", False)
     article_names = pickledb.load("all_names.db", False)
     base = "https://en.wikipedia.org/wiki/"
+    answers = []
     while True:
         i = input("🔍 ").lower()
         if i in ("quit", "exit"):
             break
+        if i and i[0] == "*":
+            ref = int(i[1:]) - 1
+            if ref < len(answers):
+                webbrowser.open(answers[ref])
+            continue
         if db.dexists("master", i):
             answers = [fix_url(base+a) for a in single_word_answers(db, article_names, i)]
         else:
             answers = [fix_url(base+a) for a in multi_word_answers(db, article_names, i)]
-        for each in answers:
-            print(each)
+        for ind, each in enumerate(answers):
+            print("({}) {}".format(ind+1, each))
         if not answers:
             print("no results found")
         print()
+
 search()
