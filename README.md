@@ -20,6 +20,6 @@ Here are some example searches and results using Wigle.
 
 
 
-<img src="pics/pic3.png" width="445px"><img src="pics/pic4.png" width="445px">
+<img src="pics/pic3.png" width="50%"><img src="pics/pic4.png" width="50%">
 
-<img src="pics/pic2.png" width="445px"><img src="pics/pic1.png" width="445px">
+<img src="pics/pic2.png" width="50%"><img src="pics/pic1.png" width="50%">
