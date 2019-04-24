@@ -14,6 +14,8 @@ Wigle attempts to figure out the relevance (to a search) and (overall) reputatio
 
 
 ## Examples
+Check out some example searches.
+
 
 <img src="pics/pic3.png" width="450px"><img src="pics/pic4.png" width="450px">
 <br>
