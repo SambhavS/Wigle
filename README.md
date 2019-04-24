@@ -16,7 +16,6 @@ Wigle attempts to figure out the relevance (to a search) and (overall) reputatio
 
 ## Examples
 Here are some example searches and results using Wigle.
-<br>
 
 
 
